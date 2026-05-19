@@ -638,7 +638,9 @@ textarea { resize:vertical; min-height:70px; }
 // ═══════════════════════════════════════════════════════════════════════════
 //  CONSTANTS & STATE
 // ═══════════════════════════════════════════════════════════════════════════
-const WS_BASE = 'wss://scanx-2f3k.onrender.com';
+const WS_BASE = location.protocol === 'file:'
+  ? 'ws://localhost:8000'
+  : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
 let ws      = null;
 let mode    = 'port';
 let results = [];

@@ -13,9 +13,11 @@ import ssl
 import socket
 import re
 import platform
+import os
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 app = FastAPI(title="ScanX API", version="2.0.0")
 
@@ -25,6 +27,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve frontend ────────────────────────────────────────────────────────────
+@app.get("/")
+async def root():
+    return FileResponse("index.html")
+
+@app.get("/favicon.svg")
+async def favicon():
+    return FileResponse("favicon.svg")
 
 # ── Service fingerprints ──────────────────────────────────────────────────────
 PORT_SERVICES = {
@@ -561,4 +572,5 @@ if __name__ == "__main__":
     print("  \033[92m●  Endpoints: /ws/portscan  /ws/udpscan  /ws/dirscan")
     print("              /ws/subdomain  /ws/sslcheck  /ws/headercheck\033[0m")
     print(f"  \033[92m●  API: http://0.0.0.0:8000\033[0m\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="warning")
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
