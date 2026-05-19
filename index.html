@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCANX v2.0 // by iamunknown77</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   THEME TOKENS
+═══════════════════════════════════════════════════════════ */
+:root {
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-display: 'Orbitron', monospace;
+  --radius: 3px;
+  --transition: 150ms ease;
+}
+
+[data-theme="dark"] {
+  --bg:         #0d1117;
+  --bg2:        #161b22;
+  --bg3:        #1c2128;
+  --border:     #30363d;
+  --border2:    #21262d;
+  --text:       #c9d1d9;
+  --text-dim:   #6e7681;
+  --text-bright:#f0f6fc;
+  --green:      #3fb950;
+  --green-dim:  #1a4b22;
+  --green-glow: rgba(63,185,80,.25);
+  --cyan:       #58a6ff;
+  --yellow:     #d29922;
+  --orange:     #db6d28;
+  --red:        #f85149;
+  --purple:     #bc8cff;
+  --accent:     #3fb950;
+  --scrollbar:  #30363d;
+}
+
+[data-theme="light"] {
+  --bg:         #f6f8fa;
+  --bg2:        #ffffff;
+  --bg3:        #eaeef2;
+  --border:     #d0d7de;
+  --border2:    #e7eaed;
+  --text:       #24292f;
+  --text-dim:   #6e7781;
+  --text-bright:#1f2328;
+  --green:      #1a7f37;
+  --green-dim:  #d2f8d8;
+  --green-glow: rgba(26,127,55,.15);
+  --cyan:       #0550ae;
+  --yellow:     #7d4e00;
+  --orange:     #a04100;
+  --red:        #cf222e;
+  --purple:     #6639ba;
+  --accent:     #1a7f37;
+  --scrollbar:  #d0d7de;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════ */
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:var(--font-mono); font-size:13px; }
+
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--scrollbar); border-radius:2px; }
+
+/* CRT effect - dark mode only */
+[data-theme="dark"] body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════════ */
+.app { display:grid; grid-template-rows:48px 1fr 28px; height:100vh; }
+.main { display:grid; grid-template-columns:300px 1fr; overflow:hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   TITLEBAR
+═══════════════════════════════════════════════════════════ */
+.titlebar {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px; gap:12px;
+  user-select:none;
+}
+
+.titlebar-left { display:flex; align-items:center; gap:12px; }
+
+.winbtns { display:flex; gap:6px; }
+.winbtn {
+  width:12px; height:12px; border-radius:50%; cursor:pointer;
+  transition:filter var(--transition);
+}
+.winbtn.close  { background:#ff5f57; }
+.winbtn.min    { background:#ffbd2e; }
+.winbtn.max    { background:#28c840; }
+.winbtn:hover  { filter:brightness(1.2); }
+
+.logo-wrap { display:flex; align-items:center; gap:10px; }
+.logo-text {
+  font-family:var(--font-display); font-size:14px; font-weight:900;
+  letter-spacing:6px; color:var(--green);
+  text-shadow:0 0 16px var(--green-glow);
+  animation:glitch 12s infinite;
+}
+.logo-ver {
+  font-size:9px; color:var(--text-dim); letter-spacing:2px;
+  border:1px solid var(--border); padding:2px 6px; border-radius:2px;
+}
+
+.titlebar-right { display:flex; align-items:center; gap:10px; }
+
+.conn-indicator { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text-dim); letter-spacing:1px; }
+.conn-dot { width:6px; height:6px; border-radius:50%; background:var(--text-dim); transition:all .3s; }
+.conn-dot.online  { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
+.conn-dot.offline { background:var(--red); box-shadow:0 0 6px var(--red); }
+
+.theme-btn {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); font-family:var(--font-mono); font-size:10px;
+  padding:3px 8px; cursor:pointer; letter-spacing:1px; border-radius:var(--radius);
+  transition:all var(--transition);
+}
+.theme-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════
+   LEFT PANEL — SIDEBAR
+═══════════════════════════════════════════════════════════ */
+.sidebar {
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+
+/* Tab bar */
+.tabs {
+  display:flex; flex-wrap:wrap;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+.tab {
+  padding:8px 10px; font-size:9px; letter-spacing:1.5px; font-weight:700;
+  color:var(--text-dim); cursor:pointer; border-bottom:2px solid transparent;
+  transition:all var(--transition); white-space:nowrap;
+  border-right:1px solid var(--border2);
+}
+.tab:hover  { color:var(--text); background:var(--bg3); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); background:var(--bg2); }
+
+/* Config panels */
+.panel { flex:1; overflow-y:auto; padding:14px; display:none; }
+.panel.active { display:block; }
+
+/* Field groups */
+.fg { margin-bottom:13px; }
+.fl { font-size:9px; color:var(--text-dim); letter-spacing:2px; font-weight:700;
+      margin-bottom:5px; display:flex; align-items:center; gap:5px; }
+.fl::before { content:'›'; color:var(--accent); }
+
+input[type=text],input[type=number],textarea,select {
+  width:100%; background:var(--bg);
+  border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text); font-family:var(--font-mono); font-size:12px;
+  padding:7px 10px; outline:none; transition:border-color var(--transition),box-shadow var(--transition);
+}
+input:focus,textarea:focus,select:focus {
+  border-color:var(--accent); box-shadow:0 0 0 2px var(--green-glow);
+}
+input::placeholder,textarea::placeholder { color:var(--text-dim); }
+textarea { resize:vertical; min-height:70px; }
+
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+
+/* Checkbox row */
+.check-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+.chk-label { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-dim); cursor:pointer; }
+.chk-label input[type=checkbox] { width:auto; accent-color:var(--accent); cursor:pointer; }
+.chk-label:hover { color:var(--text); }
+
+/* Preset buttons */
+.presets { display:flex; gap:5px; margin-bottom:12px; }
+.preset-btn {
+  flex:1; padding:5px 4px; font-size:9px; letter-spacing:1px; font-weight:700;
+  background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text-dim); cursor:pointer; transition:all var(--transition); text-align:center;
+}
+.preset-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--bg3); }
+.preset-btn.active { border-color:var(--accent); color:var(--accent); background:var(--green-dim); }
+
+/* Warning note */
+.note {
+  font-size:9px; color:var(--text-dim); line-height:1.7; padding:8px 10px;
+  border:1px solid var(--border2); border-radius:var(--radius);
+  background:var(--bg); margin-bottom:12px;
+}
+.note .warn { color:var(--yellow); font-weight:700; }
+
+/* Divider */
+.sep { border:none; border-top:1px solid var(--border2); margin:12px 0; }
+
+/* Scan button */
+.scan-btn {
+  width:100%; padding:10px; background:transparent;
+  border:1px solid var(--accent); border-radius:var(--radius);
+  color:var(--accent); font-family:var(--font-display); font-size:11px;
+  letter-spacing:4px; cursor:pointer; position:relative; overflow:hidden;
+  transition:color var(--transition); font-weight:700;
+}
+.scan-btn::before {
+  content:''; position:absolute; inset:0; background:var(--accent);
+  transform:translateX(-101%); transition:transform .2s ease; z-index:0;
+}
+.scan-btn span { position:relative; z-index:1; }
+.scan-btn:hover::before { transform:translateX(0); }
+.scan-btn:hover { color:var(--bg); }
+.scan-btn.running {
+  border-color:var(--red); color:var(--red);
+  animation:blink-border 1.2s infinite;
+}
+.scan-btn.running::before { background:var(--red); }
+
+/* ═══════════════════════════════════════════════════════════
+   HISTORY PANEL
+═══════════════════════════════════════════════════════════ */
+.history-list { display:flex; flex-direction:column; gap:6px; }
+.hist-item {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius); padding:8px 10px; cursor:pointer;
+  transition:border-color var(--transition);
+}
+.hist-item:hover { border-color:var(--accent); }
+.hist-title { font-size:10px; color:var(--text); font-weight:700; margin-bottom:3px; }
+.hist-meta  { font-size:9px; color:var(--text-dim); }
+.hist-empty { font-size:10px; color:var(--text-dim); text-align:center; padding:20px 0; }
+
+.hist-actions { display:flex; gap:6px; margin-bottom:12px; }
+.hist-btn {
+  flex:1; padding:5px; font-size:9px; letter-spacing:1px;
+  background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text-dim); cursor:pointer; transition:all var(--transition); text-align:center;
+}
+.hist-btn:hover { border-color:var(--red); color:var(--red); }
+
+/* ═══════════════════════════════════════════════════════════
+   RIGHT PANEL — TERMINAL
+═══════════════════════════════════════════════════════════ */
+.terminal { display:flex; flex-direction:column; overflow:hidden; background:var(--bg); }
+
+/* Terminal header */
+.term-header {
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:0 14px; display:flex; align-items:center; justify-content:space-between;
+  min-height:36px; gap:8px;
+}
+.term-title { font-size:9px; color:var(--text-dim); letter-spacing:2px; font-weight:700; }
+.term-btns  { display:flex; gap:6px; flex-wrap:wrap; }
+
+.tbtn {
+  padding:3px 10px; background:transparent; border:1px solid var(--border);
+  border-radius:var(--radius); color:var(--text-dim); font-family:var(--font-mono);
+  font-size:9px; letter-spacing:1px; cursor:pointer; transition:all var(--transition);
+  font-weight:700;
+}
+.tbtn:hover { border-color:var(--cyan); color:var(--cyan); }
+.tbtn.export-json:hover { border-color:var(--yellow); color:var(--yellow); }
+.tbtn.export-csv:hover  { border-color:var(--purple); color:var(--purple); }
+.tbtn.save-hist:hover   { border-color:var(--green); color:var(--green); }
+
+/* Stats row */
+.stats {
+  display:flex; border-bottom:1px solid var(--border);
+  background:var(--bg2); font-size:10px; overflow-x:auto;
+}
+.stat {
+  padding:6px 14px; border-right:1px solid var(--border);
+  display:flex; gap:6px; align-items:center; white-space:nowrap;
+}
+.sl { color:var(--text-dim); letter-spacing:1px; font-size:9px; }
+.sv { font-weight:700; }
+.sv.green  { color:var(--green); }
+.sv.cyan   { color:var(--cyan); }
+.sv.yellow { color:var(--yellow); }
+.sv.red    { color:var(--red); }
+
+/* Progress bar */
+.prog-wrap { height:2px; background:var(--bg2); position:relative; }
+.prog-fill { height:100%; background:var(--accent); width:0; transition:width .25s ease; }
+
+/* Output area */
+.output {
+  flex:1; overflow-y:auto; padding:10px 14px;
+  font-size:12px; line-height:1.7;
+  background:var(--bg);
+  font-variant-ligatures:none;
+}
+
+.line {
+  display:flex; gap:8px; padding:1px 0;
+  animation:line-in .06s ease;
+  align-items:flex-start;
+}
+
+/* Timestamps */
+.lt { color:var(--text-dim); font-size:9px; min-width:70px; padding-top:2px; flex-shrink:0; opacity:.6; }
+
+/* Badges */
+.badge {
+  font-size:9px; padding:1px 6px; min-width:56px; text-align:center;
+  border:1px solid transparent; border-radius:2px; flex-shrink:0;
+  font-weight:700; letter-spacing:.5px; height:fit-content;
+}
+.b-info   { color:var(--cyan);   border-color:rgba(88,166,255,.35); }
+.b-open   { color:var(--green);  border-color:rgba(63,185,80,.45); }
+.b-done   { color:var(--green);  border-color:var(--green); }
+.b-err    { color:var(--red);    border-color:rgba(248,81,73,.35); }
+.b-warn   { color:var(--yellow); border-color:rgba(210,153,34,.35); }
+.b-os     { color:var(--purple); border-color:rgba(188,140,255,.35); }
+.b-200    { color:var(--green);  border-color:rgba(63,185,80,.4); }
+.b-3xx    { color:var(--cyan);   border-color:rgba(88,166,255,.35); }
+.b-401    { color:var(--orange); border-color:rgba(219,109,40,.35); }
+.b-403    { color:var(--orange); border-color:rgba(219,109,40,.35); }
+.b-5xx    { color:var(--red);    border-color:rgba(248,81,73,.35); }
+.b-dim    { color:var(--text-dim); border-color:transparent; }
+.b-ok     { color:var(--green);  border-color:rgba(63,185,80,.4); }
+.b-crit   { color:var(--red);    border-color:rgba(248,81,73,.5); }
+.b-miss   { color:var(--yellow); border-color:rgba(210,153,34,.4); }
+.b-leak   { color:var(--orange); border-color:rgba(219,109,40,.4); }
+.b-udp    { color:var(--purple); border-color:rgba(188,140,255,.4); }
+.b-sub    { color:var(--cyan);   border-color:rgba(88,166,255,.4); }
+
+.lc  { color:var(--text); flex:1; word-break:break-all; }
+.lmeta { color:var(--text-dim); font-size:10px; flex-shrink:0; text-align:right; padding-top:2px; }
+
+/* Banner text */
+.banner-text { color:var(--text-dim); font-size:10px; font-style:italic; }
+
+/* Preview block */
+.preview-block {
+  margin-top:3px; padding:4px 8px;
+  background:var(--bg2); border-left:2px solid var(--border);
+  font-size:10px; color:var(--text-dim); font-style:italic;
+  word-break:break-all; max-width:600px;
+}
+
+/* IP tag */
+.ip-tag {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:2px; padding:0 5px; font-size:10px; color:var(--cyan);
+  margin-left:4px;
+}
+
+/* Boot ASCII */
+.welcome { color:var(--green); white-space:pre; line-height:1.2; font-size:11px; }
+[data-theme="dark"] .welcome { text-shadow:0 0 12px var(--green-glow); }
+.cursor { display:inline-block; width:7px; height:12px; background:var(--accent); vertical-align:middle; animation:blink 1s infinite; margin-left:1px; }
+
+/* ═══════════════════════════════════════════════════════════
+   STATUS BAR
+═══════════════════════════════════════════════════════════ */
+.statusbar {
+  background:var(--accent); color:var(--bg);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 14px; font-size:9px; letter-spacing:1.5px; font-weight:700;
+  user-select:none;
+}
+[data-theme="dark"] .statusbar { color:#0d1117; }
+[data-theme="light"] .statusbar { color:#fff; }
+.sb-left { display:flex; gap:18px; }
+.sb-sep  { opacity:.4; }
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════ */
+@keyframes pulse       { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes blink       { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes line-in     { from{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+@keyframes blink-border{ 0%,100%{box-shadow:0 0 0 1px var(--red)} 50%{box-shadow:0 0 8px var(--red)} }
+@keyframes glitch {
+  0%,90%,100% { transform:none; }
+  91% { transform:translateX(-1px); }
+  92% { transform:translateX(2px) skewX(1deg); }
+  93% { transform:none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ TITLEBAR ══════════════════════════════════════════════════════════════ -->
+<div class="titlebar">
+  <div class="titlebar-left">
+    <div class="winbtns">
+      <div class="winbtn close"></div>
+      <div class="winbtn min"></div>
+      <div class="winbtn max"></div>
+    </div>
+    <div class="logo-wrap">
+      <div class="logo-text">SCANX</div>
+      <div class="logo-ver">v2.0</div>
+    </div>
+    <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;">by iamunknown77</div>
+  </div>
+  <div class="titlebar-right">
+    <div class="conn-indicator">
+      <div class="conn-dot" id="connDot"></div>
+      <span id="connLabel">CONNECTING</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">◑ LIGHT</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────────── -->
+  <div class="sidebar">
+    <div class="tabs" id="tabBar">
+      <div class="tab active" data-tab="port"      onclick="switchTab('port')">TCP</div>
+      <div class="tab"        data-tab="udp"       onclick="switchTab('udp')">UDP</div>
+      <div class="tab"        data-tab="dir"       onclick="switchTab('dir')">DIR</div>
+      <div class="tab"        data-tab="subdomain" onclick="switchTab('subdomain')">SUB</div>
+      <div class="tab"        data-tab="ssl"       onclick="switchTab('ssl')">SSL</div>
+      <div class="tab"        data-tab="headers"   onclick="switchTab('headers')">HDR</div>
+      <div class="tab"        data-tab="history"   onclick="switchTab('history')">HIST</div>
+    </div>
+
+    <!-- ── TCP PORT SCANNER ── -->
+    <div class="panel active" id="cfg-port">
+      <div class="note"><span class="warn">⚠ LEGAL:</span> Authorized systems only.</div>
+      <div class="fg">
+        <div class="fl">TARGET HOST / IP</div>
+        <input id="p-host" type="text" placeholder="192.168.1.1 or example.com">
+      </div>
+      <div class="fg">
+        <div class="fl">PRESETS</div>
+        <div class="presets">
+          <div class="preset-btn" id="pre-custom" onclick="setPreset('custom')">CUSTOM</div>
+          <div class="preset-btn" id="pre-top100"  onclick="setPreset('top100')">TOP 100</div>
+          <div class="preset-btn" id="pre-top1000" onclick="setPreset('top1000')">TOP 1K</div>
+          <div class="preset-btn" id="pre-full"    onclick="setPreset('full')">FULL</div>
+        </div>
+      </div>
+      <div class="fg" id="fg-custom-ports">
+        <div class="fl">PORT RANGE</div>
+        <input id="p-ports" type="text" value="1-1000" placeholder="1-65535, 80, 443">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <div class="fl">THREADS</div>
+          <input id="p-threads" type="number" value="500" min="1" max="2000">
+        </div>
+        <div class="fg">
+          <div class="fl">TIMEOUT (s)</div>
+          <input id="p-timeout" type="number" value="1.0" step="0.1" min="0.1" max="10">
+        </div>
+      </div>
+      <div class="check-row">
+        <label class="chk-label"><input type="checkbox" id="p-banner"> BANNER</label>
+        <label class="chk-label"><input type="checkbox" id="p-os"> OS DETECT</label>
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-port" onclick="portAction()"><span id="btn-port-lbl">▶ SCAN</span></button>
+    </div>
+
+    <!-- ── UDP SCANNER ── -->
+    <div class="panel" id="cfg-udp">
+      <div class="note"><span class="warn">⚠</span> May require root/admin. <span class="warn">UDP scan only.</span></div>
+      <div class="fg">
+        <div class="fl">TARGET HOST / IP</div>
+        <input id="u-host" type="text" placeholder="192.168.1.1">
+      </div>
+      <div class="fg">
+        <div class="fl">UDP PORTS (empty = common ports)</div>
+        <input id="u-ports" type="text" placeholder="53,161,123,67  or  1-500">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <div class="fl">THREADS</div>
+          <input id="u-threads" type="number" value="30" min="1" max="100">
+        </div>
+        <div class="fg">
+          <div class="fl">TIMEOUT (s)</div>
+          <input id="u-timeout" type="number" value="2.0" step="0.5" min="0.5" max="10">
+        </div>
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-udp" onclick="udpAction()"><span id="btn-udp-lbl">▶ SCAN</span></button>
+    </div>
+
+    <!-- ── DIR SCANNER ── -->
+    <div class="panel" id="cfg-dir">
+      <div class="note"><span class="warn">⚠ LEGAL:</span> Authorized systems only.</div>
+      <div class="fg">
+        <div class="fl">TARGET URL</div>
+        <input id="d-url" type="text" placeholder="https://example.com">
+      </div>
+      <div class="fg">
+        <div class="fl">EXTENSIONS (comma separated)</div>
+        <input id="d-ext" type="text" placeholder="php, html, js, txt">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <div class="fl">THREADS</div>
+          <input id="d-threads" type="number" value="50" min="1" max="200">
+        </div>
+        <div class="fg">
+          <div class="fl">STATUS FILTER</div>
+          <input id="d-status" type="text" value="200,301,302,401,403">
+        </div>
+      </div>
+      <div class="check-row">
+        <label class="chk-label"><input type="checkbox" id="d-recursive"> RECURSIVE</label>
+        <label class="chk-label"><input type="checkbox" id="d-preview"> PREVIEW</label>
+      </div>
+      <div class="fg">
+        <div class="fl">PROXY (optional)</div>
+        <input id="d-proxy" type="text" placeholder="http://127.0.0.1:8080">
+      </div>
+      <div class="fg">
+        <div class="fl">CUSTOM HEADERS (JSON, optional)</div>
+        <textarea id="d-headers" placeholder='{"Authorization":"Bearer token","Cookie":"session=abc"}'></textarea>
+      </div>
+      <div class="fg">
+        <div class="fl">WORDLIST (one per line — empty = built-in)</div>
+        <textarea id="d-words" placeholder="admin&#10;login&#10;dashboard&#10;api&#10;..."></textarea>
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-dir" onclick="dirAction()"><span id="btn-dir-lbl">▶ SCAN</span></button>
+    </div>
+
+    <!-- ── SUBDOMAIN ENUM ── -->
+    <div class="panel" id="cfg-subdomain">
+      <div class="note"><span class="warn">⚠</span> DNS brute-force. Use on domains you own/have permission for.</div>
+      <div class="fg">
+        <div class="fl">TARGET DOMAIN</div>
+        <input id="s-domain" type="text" placeholder="example.com">
+      </div>
+      <div class="fg">
+        <div class="fl">THREADS</div>
+        <input id="s-threads" type="number" value="100" min="1" max="500">
+      </div>
+      <div class="fg">
+        <div class="fl">WORDLIST (one per line — empty = built-in ~80 subs)</div>
+        <textarea id="s-words" placeholder="www&#10;mail&#10;api&#10;dev&#10;staging&#10;..."></textarea>
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-sub" onclick="subdomainAction()"><span id="btn-sub-lbl">▶ ENUMERATE</span></button>
+    </div>
+
+    <!-- ── SSL INSPECTOR ── -->
+    <div class="panel" id="cfg-ssl">
+      <div class="fg">
+        <div class="fl">TARGET HOST</div>
+        <input id="ssl-host" type="text" placeholder="example.com">
+      </div>
+      <div class="fg">
+        <div class="fl">PORT</div>
+        <input id="ssl-port" type="number" value="443" min="1" max="65535">
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-ssl" onclick="sslAction()"><span id="btn-ssl-lbl">▶ INSPECT</span></button>
+    </div>
+
+    <!-- ── HTTP HEADERS ── -->
+    <div class="panel" id="cfg-headers">
+      <div class="fg">
+        <div class="fl">TARGET URL</div>
+        <input id="h-url" type="text" placeholder="https://example.com">
+      </div>
+      <hr class="sep">
+      <button class="scan-btn" id="btn-hdr" onclick="headerAction()"><span id="btn-hdr-lbl">▶ ANALYZE</span></button>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div class="panel" id="cfg-history">
+      <div class="hist-actions">
+        <div class="hist-btn" onclick="clearHistory()">✕ CLEAR ALL</div>
+      </div>
+      <div class="history-list" id="histList">
+        <div class="hist-empty">No scan history yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TERMINAL ──────────────────────────────────────────────────── -->
+  <div class="terminal">
+
+    <div class="term-header">
+      <div class="term-title" id="term-title">// TCP PORT SCANNER</div>
+      <div class="term-btns">
+        <button class="tbtn" onclick="clearOut()">CLEAR</button>
+        <button class="tbtn save-hist" onclick="saveToHistory()">SAVE</button>
+        <button class="tbtn export-json" onclick="exportJSON()">JSON</button>
+        <button class="tbtn export-csv"  onclick="exportCSV()">CSV</button>
+        <button class="tbtn" onclick="exportTXT()">TXT</button>
+      </div>
+    </div>
+
+    <div class="stats" id="statsRow">
+      <div class="stat"><span class="sl">SCANNED</span><span class="sv cyan"  id="s-scanned">0</span></div>
+      <div class="stat"><span class="sl">FOUND</span>  <span class="sv green" id="s-found">0</span></div>
+      <div class="stat"><span class="sl">TOTAL</span>  <span class="sv"       id="s-total">—</span></div>
+      <div class="stat"><span class="sl">ELAPSED</span><span class="sv yellow"id="s-elapsed">0.0s</span></div>
+      <div class="stat"><span class="sl">SPEED</span>  <span class="sv"       id="s-speed">—</span></div>
+      <div class="stat"><span class="sl">STATE</span>  <span class="sv green" id="s-state">IDLE</span></div>
+    </div>
+
+    <div class="prog-wrap"><div class="prog-fill" id="prog"></div></div>
+
+    <div class="output" id="out"></div>
+
+  </div>
+</div>
+
+<!-- ══ STATUS BAR ═════════════════════════════════════════════════════════════ -->
+<div class="statusbar">
+  <div class="sb-left">
+    <span>SCANX v2.0</span>
+    <span class="sb-sep">│</span>
+    <span>MODE: <span id="sb-mode">TCP SCAN</span></span>
+    <span class="sb-sep">│</span>
+    <span id="sb-time">--:--:--</span>
+  </div>
+  <span id="sb-backend">ws://localhost:8000</span>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const WS_BASE = 'ws://localhost:8000';
+let ws      = null;
+let mode    = 'port';
+let results = [];
+let t0      = null;
+let ticker  = null;
+let preset  = 'custom';
+
+const TAB_TITLES = {
+  port:      '// TCP PORT SCANNER',
+  udp:       '// UDP PORT SCANNER',
+  dir:       '// DIRECTORY SCANNER',
+  subdomain: '// SUBDOMAIN ENUMERATOR',
+  ssl:       '// SSL/TLS INSPECTOR',
+  headers:   '// HTTP HEADER ANALYZER',
+  history:   '// SCAN HISTORY',
+};
+const SB_MODES = {
+  port:'TCP SCAN', udp:'UDP SCAN', dir:'DIR SCAN',
+  subdomain:'SUBDOMAIN', ssl:'SSL CHECK', headers:'HDR AUDIT', history:'HISTORY',
+};
+
+// ─── Clock ────────────────────────────────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('sb-time').textContent =
+    new Date().toLocaleTimeString('en-US', {hour12:false});
+}, 1000);
+
+// ─── Theme ────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  html.dataset.theme = next;
+  document.getElementById('themeBtn').textContent = next === 'dark' ? '◑ LIGHT' : '◑ DARK';
+  localStorage.setItem('sx-theme', next);
+}
+(function initTheme() {
+  const saved = localStorage.getItem('sx-theme');
+  if (saved) {
+    document.documentElement.dataset.theme = saved;
+    document.getElementById('themeBtn').textContent = saved === 'dark' ? '◑ LIGHT' : '◑ DARK';
+  }
+})();
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  mode = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `cfg-${tab}`));
+  document.getElementById('term-title').textContent = TAB_TITLES[tab];
+  document.getElementById('sb-mode').textContent    = SB_MODES[tab];
+  if (tab === 'history') renderHistory();
+}
+
+// ─── Port presets ──────────────────────────────────────────────────────────────
+function setPreset(p) {
+  preset = p;
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.id === `pre-${p}`);
+  });
+  document.getElementById('fg-custom-ports').style.display = p === 'custom' ? 'block' : 'none';
+}
+setPreset('custom');
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function now() { return new Date().toLocaleTimeString('en-US',{hour12:false}); }
+
+function addLine(time, badge, bClass, content, meta='', extra='') {
+  const out = document.getElementById('out');
+  const el  = document.createElement('div');
+  el.className = 'line';
+  el.innerHTML =
+    `<span class="lt">${time}</span>` +
+    `<span class="badge ${bClass}">${badge}</span>` +
+    `<span class="lc">${content}${extra}</span>` +
+    (meta ? `<span class="lmeta">${meta}</span>` : '');
+  out.appendChild(el);
+  out.scrollTop = out.scrollHeight;
+}
+
+function clearOut() {
+  document.getElementById('out').innerHTML = '';
+  results = [];
+  resetStats();
+}
+
+function resetStats() {
+  ['s-scanned','s-found'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('s-total').textContent   = '—';
+  document.getElementById('s-elapsed').textContent = '0.0s';
+  document.getElementById('s-speed').textContent   = '—';
+  document.getElementById('s-state').textContent   = 'IDLE';
+  document.getElementById('s-state').className     = 'sv green';
+  document.getElementById('prog').style.width      = '0%';
+}
+
+function updateStats(scanned, total, found) {
+  document.getElementById('s-scanned').textContent = scanned;
+  document.getElementById('s-found').textContent   = found;
+  if (total) {
+    document.getElementById('s-total').textContent = total;
+    document.getElementById('prog').style.width = Math.round(scanned / total * 100) + '%';
+  }
+  if (t0) {
+    const el = (Date.now() - t0) / 1000;
+    const sp = el > 0 ? Math.round(scanned / el) : 0;
+    document.getElementById('s-elapsed').textContent = el.toFixed(1) + 's';
+    document.getElementById('s-speed').textContent   = sp + '/s';
+  }
+}
+
+function startTicker() {
+  t0 = Date.now();
+  if (ticker) clearInterval(ticker);
+  ticker = setInterval(() => {
+    const el = (Date.now()-t0)/1000;
+    document.getElementById('s-elapsed').textContent = el.toFixed(1) + 's';
+  }, 100);
+}
+function stopTicker() { if (ticker) { clearInterval(ticker); ticker = null; } }
+
+function setRunning(running) {
+  ['port','udp','dir','sub','ssl','hdr'].forEach(k => {
+    const btn = document.getElementById(`btn-${k}`);
+    const lbl = document.getElementById(`btn-${k}-lbl`);
+    if (!btn || !lbl) return;
+    btn.classList.toggle('running', running);
+    lbl.textContent = running ? '■ STOP' : (k === 'ssl' ? '▶ INSPECT' : k === 'hdr' ? '▶ ANALYZE' : k === 'sub' ? '▶ ENUMERATE' : '▶ SCAN');
+  });
+  const stateEl = document.getElementById('s-state');
+  stateEl.textContent  = running ? 'SCANNING...' : 'IDLE';
+  stateEl.className    = running ? 'sv red' : 'sv green';
+}
+
+function stopScan() {
+  if (ws) { ws.close(); ws = null; }
+  stopTicker();
+  setRunning(false);
+}
+
+// ─── WebSocket helper ─────────────────────────────────────────────────────────
+function openWS(endpoint, payload, msgHandler) {
+  if (ws) { stopScan(); return; }
+  clearOut(); results = []; setRunning(true); startTicker();
+  ws = new WebSocket(`${WS_BASE}${endpoint}`);
+  ws.onopen    = () => ws.send(JSON.stringify(payload));
+  ws.onmessage = e => msgHandler(JSON.parse(e.data));
+  ws.onerror   = () => {
+    addLine(now(),'ERR','badge b-err','Cannot reach backend — start with: python scanner_backend.py');
+    stopTicker(); setRunning(false); ws = null;
+  };
+  ws.onclose   = () => { if (ws) { stopTicker(); setRunning(false); ws = null; } };
+}
+
+// ─── Message handlers ──────────────────────────────────────────────────────────
+function handlePortMsg(msg) {
+  const t = now();
+  if (msg.type === 'info')  { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'os')    { addLine(t,'OS','badge b-os', msg.message); }
+  else if (msg.type === 'warn')  { addLine(t,'WARN','badge b-warn', msg.message); }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    const bannerHtml = d.banner ? `<span class="banner-text"> ↳ ${escHtml(d.banner)}</span>` : '';
+    addLine(t,'OPEN','badge b-open', `Port ${d.port}`, d.service || 'Unknown', bannerHtml);
+  }
+  else if (msg.type === 'progress') { updateStats(msg.scanned, msg.total, msg.open ?? 0); }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+function handleDirMsg(msg) {
+  const t = now();
+  if (msg.type === 'info')  { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    let bc = 'b-dim';
+    if (d.status >= 500)      bc = 'b-5xx';
+    else if (d.status === 403) bc = 'b-403';
+    else if (d.status === 401) bc = 'b-401';
+    else if (d.status >= 300)  bc = 'b-3xx';
+    else if (d.status === 200) bc = 'b-200';
+    const prevHtml = d.preview ? `<div class="preview-block">${escHtml(d.preview.substring(0,150))}</div>` : '';
+    addLine(t, d.status, `badge ${bc}`, escHtml(d.url), `[${d.size}B]`, prevHtml);
+  }
+  else if (msg.type === 'progress') { updateStats(msg.scanned, msg.total, msg.found ?? 0); }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+function handleSubMsg(msg) {
+  const t = now();
+  if (msg.type === 'info')  { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    const ipsHtml = d.ips.map(ip => `<span class="ip-tag">${ip}</span>`).join('');
+    addLine(t,'FOUND','badge b-sub', escHtml(d.subdomain), '', ipsHtml);
+  }
+  else if (msg.type === 'progress') { updateStats(msg.scanned, msg.total, msg.open ?? 0); }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+function handleSSLMsg(msg) {
+  const t = now();
+  if (msg.type === 'info') { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'ssl_result') {
+    const d = msg.data;
+    if (!d.ok) addLine(t,'ERR','badge b-err', d.error || 'SSL connection failed');
+  }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    let bc = 'b-info';
+    if (d.status === 'OK')       bc = 'b-ok';
+    else if (d.status === 'WARN') bc = 'b-warn';
+    else if (d.status === 'CRITICAL') bc = 'b-crit';
+    addLine(t, d.status||d.check, `badge ${bc}`, `${d.check}: ${escHtml(String(d.value||''))}`, '', '');
+  }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+function handleHdrMsg(msg) {
+  const t = now();
+  if (msg.type === 'info') { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    let bc = 'b-info';
+    if (d.status === 'PRESENT') bc = 'b-ok';
+    else if (d.status === 'MISSING') {
+      bc = d.risk === 'HIGH' ? 'b-crit' : d.risk === 'MEDIUM' ? 'b-403' : 'b-warn';
+    } else if (d.status === 'LEAK') bc = 'b-leak';
+    const riskBadge = d.risk && d.risk !== 'OK'
+      ? ` <span style="font-size:9px;opacity:.7">[${d.risk}]</span>` : '';
+    addLine(t, d.status, `badge ${bc}`, `${d.header}${riskBadge}: <span style="color:var(--text-dim);font-size:11px">${escHtml(d.value||'')}</span>`);
+  }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+function handleUDPMsg(msg) {
+  const t = now();
+  if (msg.type === 'info')  { addLine(t,'INFO','badge b-info', msg.message); }
+  else if (msg.type === 'warn')  { addLine(t,'WARN','badge b-warn', msg.message); }
+  else if (msg.type === 'result') {
+    const d = msg.data;
+    results.push(d);
+    const statusBadge = d.status === 'open' ? 'b-open' : 'b-udp';
+    addLine(t, d.status.toUpperCase(), `badge ${statusBadge}`,
+      `UDP/${d.port}`, d.service || 'Unknown',
+      d.bytes ? ` <span class="banner-text">(${d.bytes}B)</span>` : '');
+  }
+  else if (msg.type === 'progress') { updateStats(msg.scanned, msg.total, msg.open ?? 0); }
+  else if (msg.type === 'done')  { addLine(t,'DONE','badge b-done', msg.message); stopTicker(); setRunning(false); ws = null; }
+  else if (msg.type === 'error') { addLine(t,'ERR','badge b-err', msg.message); stopTicker(); setRunning(false); ws = null; }
+}
+
+// ─── Scanner actions ──────────────────────────────────────────────────────────
+function portAction() {
+  if (ws) { stopScan(); return; }
+  const host    = document.getElementById('p-host').value.trim();
+  const ports   = document.getElementById('p-ports').value.trim();
+  const threads = document.getElementById('p-threads').value;
+  const timeout = document.getElementById('p-timeout').value;
+  const banner  = document.getElementById('p-banner').checked;
+  const os_det  = document.getElementById('p-os').checked;
+  if (!host) { addLine(now(),'ERR','badge b-err','No target host'); return; }
+  openWS('/ws/portscan', {host, ports, threads, timeout, banner, os_detect:os_det, preset: preset === 'custom' ? '' : preset}, handlePortMsg);
+}
+
+function udpAction() {
+  if (ws) { stopScan(); return; }
+  const host    = document.getElementById('u-host').value.trim();
+  const ports   = document.getElementById('u-ports').value.trim();
+  const threads = document.getElementById('u-threads').value;
+  const timeout = document.getElementById('u-timeout').value;
+  if (!host) { addLine(now(),'ERR','badge b-err','No target host'); return; }
+  openWS('/ws/udpscan', {host, ports, threads, timeout}, handleUDPMsg);
+}
+
+function dirAction() {
+  if (ws) { stopScan(); return; }
+  const url       = document.getElementById('d-url').value.trim();
+  const ext       = document.getElementById('d-ext').value.trim();
+  const threads   = document.getElementById('d-threads').value;
+  const filter    = document.getElementById('d-status').value.trim();
+  const wordlist  = document.getElementById('d-words').value.trim();
+  const recursive = document.getElementById('d-recursive').checked;
+  const preview   = document.getElementById('d-preview').checked;
+  const proxy     = document.getElementById('d-proxy').value.trim();
+  const rawHdr    = document.getElementById('d-headers').value.trim();
+  let headers = {};
+  if (rawHdr) { try { headers = JSON.parse(rawHdr); } catch(e) { addLine(now(),'ERR','badge b-err','Invalid JSON in custom headers'); return; } }
+  if (!url) { addLine(now(),'ERR','badge b-err','No target URL'); return; }
+  openWS('/ws/dirscan', {url, extensions:ext, threads, status_filter:filter, wordlist, recursive, preview, proxy, headers}, handleDirMsg);
+}
+
+function subdomainAction() {
+  if (ws) { stopScan(); return; }
+  const domain   = document.getElementById('s-domain').value.trim();
+  const threads  = document.getElementById('s-threads').value;
+  const wordlist = document.getElementById('s-words').value.trim();
+  if (!domain) { addLine(now(),'ERR','badge b-err','No domain specified'); return; }
+  openWS('/ws/subdomain', {domain, threads, wordlist}, handleSubMsg);
+}
+
+function sslAction() {
+  if (ws) { stopScan(); return; }
+  const host = document.getElementById('ssl-host').value.trim();
+  const port = document.getElementById('ssl-port').value;
+  if (!host) { addLine(now(),'ERR','badge b-err','No host specified'); return; }
+  openWS('/ws/sslcheck', {host, port}, handleSSLMsg);
+}
+
+function headerAction() {
+  if (ws) { stopScan(); return; }
+  const url = document.getElementById('h-url').value.trim();
+  if (!url) { addLine(now(),'ERR','badge b-err','No URL specified'); return; }
+  openWS('/ws/headercheck', {url}, handleHdrMsg);
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function dlBlob(content, name, type='text/plain') {
+  const a = document.createElement('a');
+  a.href     = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportTXT() {
+  if (!results.length) return;
+  const lines = results.map(r => {
+    if (r.port) return `${r.port}\t${r.status}\t${r.service}\t${r.banner||''}`;
+    if (r.subdomain) return `${r.subdomain}\t${(r.ips||[]).join(',')}`;
+    if (r.check) return `${r.check}\t${r.status}\t${r.value||''}`;
+    if (r.header) return `${r.header}\t${r.status}\t${r.risk}\t${r.value||''}`;
+    return `${r.status}\t${r.url}\t${r.size||''}`;
+  });
+  dlBlob(lines.join('\n'), `scanx_${mode}_${Date.now()}.txt`);
+}
+
+function exportJSON() {
+  if (!results.length) return;
+  dlBlob(JSON.stringify(results, null, 2), `scanx_${mode}_${Date.now()}.json`, 'application/json');
+}
+
+function exportCSV() {
+  if (!results.length) return;
+  const r0 = results[0];
+  const keys = Object.keys(r0);
+  const header = keys.join(',');
+  const rows = results.map(r =>
+    keys.map(k => {
+      const v = r[k];
+      const s = Array.isArray(v) ? v.join(';') : String(v ?? '');
+      return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+    }).join(',')
+  );
+  dlBlob([header, ...rows].join('\n'), `scanx_${mode}_${Date.now()}.csv`, 'text/csv');
+}
+
+// ─── Scan history ─────────────────────────────────────────────────────────────
+function saveToHistory() {
+  if (!results.length) { addLine(now(),'WARN','badge b-warn','No results to save'); return; }
+  const hist = JSON.parse(localStorage.getItem('sx-history') || '[]');
+  const entry = {
+    id:      Date.now(),
+    mode,
+    count:   results.length,
+    ts:      new Date().toLocaleString(),
+    data:    results,
+    target:  getTarget(),
+  };
+  hist.unshift(entry);
+  localStorage.setItem('sx-history', JSON.stringify(hist.slice(0, 50)));
+  addLine(now(),'SAVE','badge b-done',`Saved ${results.length} results to history`);
+}
+
+function getTarget() {
+  switch(mode) {
+    case 'port':      return document.getElementById('p-host').value.trim();
+    case 'udp':       return document.getElementById('u-host').value.trim();
+    case 'dir':       return document.getElementById('d-url').value.trim();
+    case 'subdomain': return document.getElementById('s-domain').value.trim();
+    case 'ssl':       return document.getElementById('ssl-host').value.trim();
+    case 'headers':   return document.getElementById('h-url').value.trim();
+    default:          return '';
+  }
+}
+
+function renderHistory() {
+  const hist = JSON.parse(localStorage.getItem('sx-history') || '[]');
+  const container = document.getElementById('histList');
+  if (!hist.length) {
+    container.innerHTML = '<div class="hist-empty">No scan history yet.<br>Run a scan and click SAVE.</div>';
+    return;
+  }
+  container.innerHTML = hist.map(e => `
+    <div class="hist-item" onclick="loadHistory(${e.id})">
+      <div class="hist-title">${escHtml(e.mode.toUpperCase())} — ${escHtml(e.target||'?')}</div>
+      <div class="hist-meta">${e.count} results  ·  ${e.ts}</div>
+    </div>`).join('');
+}
+
+function loadHistory(id) {
+  const hist = JSON.parse(localStorage.getItem('sx-history') || '[]');
+  const entry = hist.find(e => e.id === id);
+  if (!entry) return;
+  mode = entry.mode;
+  results = entry.data;
+  clearOut();
+  addLine(now(),'HIST','badge b-info',`Loaded history: ${entry.mode.toUpperCase()} / ${entry.target} (${entry.ts})`);
+  results.forEach(r => {
+    const t = now();
+    if (r.port) {
+      addLine(t,'OPEN','badge b-open',`Port ${r.port}`, r.service||'',
+        r.banner ? `<span class="banner-text"> ↳ ${escHtml(r.banner)}</span>` : '');
+    } else if (r.subdomain) {
+      const ips = (r.ips||[]).map(ip=>`<span class="ip-tag">${ip}</span>`).join('');
+      addLine(t,'FOUND','badge b-sub',escHtml(r.subdomain),'',ips);
+    } else if (r.check) {
+      const bc = r.status==='OK'?'b-ok':r.status==='WARN'?'b-warn':r.status==='CRITICAL'?'b-crit':'b-info';
+      addLine(t,r.status||r.check,`badge ${bc}`,`${r.check}: ${escHtml(String(r.value||''))}`);
+    } else if (r.header) {
+      const bc = r.status==='PRESENT'?'b-ok':r.status==='MISSING'?'b-miss':'b-leak';
+      addLine(t,r.status,`badge ${bc}`,`${r.header}: ${escHtml(r.value||'')}`);
+    } else {
+      const bc = !r.status?'b-dim':r.status>=500?'b-5xx':r.status===403?'b-403':r.status>=300?'b-3xx':'b-200';
+      addLine(t, r.status, `badge ${bc}`, escHtml(r.url||''), `[${r.size||'?'}B]`);
+    }
+  });
+  document.getElementById('s-found').textContent = results.length;
+}
+
+function clearHistory() {
+  localStorage.removeItem('sx-history');
+  renderHistory();
+}
+
+// ─── Backend health check ─────────────────────────────────────────────────────
+function checkBackend() {
+  const dot   = document.getElementById('connDot');
+  const label = document.getElementById('connLabel');
+  const probe = new WebSocket(`${WS_BASE}/ws/portscan`);
+  probe.onopen  = () => { probe.close(); dot.className='conn-dot online';  label.textContent='ONLINE'; };
+  probe.onerror = () => {                dot.className='conn-dot offline'; label.textContent='OFFLINE'; };
+}
+
+// ─── Boot sequence ────────────────────────────────────────────────────────────
+(function boot() {
+  const out = document.getElementById('out');
+  const banner = `  ███████╗ ██████╗ █████╗ ███╗   ██╗██╗  ██╗
+  ██╔════╝██╔════╝██╔══██╗████╗  ██║╚██╗██╔╝
+  ███████╗██║     ███████║██╔██╗ ██║ ╚███╔╝
+  ╚════██║██║     ██╔══██║██║╚██╗██║ ██╔██╗
+  ███████║╚██████╗██║  ██║██║ ╚████║██╔╝ ██╗
+  ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝`;
+
+  const bannerEl = document.createElement('div');
+  bannerEl.className = 'line';
+  bannerEl.innerHTML = `<span class="lc"><pre class="welcome">${banner}</pre></span>`;
+  out.appendChild(bannerEl);
+
+  const bootLines = [
+    ['var(--cyan)',       'Advanced Security Scanner v2.0  //  by iamunknown77'],
+    ['var(--text-dim)',   '────────────────────────────────────────────────────'],
+    ['var(--yellow)',     '⚠  Use only on systems you own or have written permission to test'],
+    ['var(--text-dim)',   '  TCP Scanner  — port scanning with banner grab & OS detection'],
+    ['var(--text-dim)',   '  UDP Scanner  — common UDP ports (DNS, SNMP, NTP, etc.)'],
+    ['var(--text-dim)',   '  Dir Scanner  — path brute-force with recursive, proxy & preview'],
+    ['var(--text-dim)',   '  Subdomain    — DNS brute-force enumeration'],
+    ['var(--text-dim)',   '  SSL/TLS      — certificate info, expiry, cipher analysis'],
+    ['var(--text-dim)',   '  HTTP Headers — security header audit'],
+    ['var(--green)',      '  Export: JSON / CSV / TXT   ·   Save to localStorage history'],
+    ['var(--text-dim)',   '  Backend: python scanner_backend.py  (port 8000)  <span class="cursor"></span>'],
+  ];
+
+  bootLines.forEach(([color, text]) => {
+    const d = document.createElement('div');
+    d.className = 'line';
+    d.innerHTML = `<span class="lc" style="color:${color}">${text}</span>`;
+    out.appendChild(d);
+  });
+
+  checkBackend();
+  setInterval(checkBackend, 20000);
+})();
+</script>
+</body>
+</html>
